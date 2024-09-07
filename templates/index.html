@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Display</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; /* Set the desired background color */
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .feed {
+            width: 80vw;
+            height: 80vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .slide img {
+            max-width: 100%;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="feed" id="feed"></div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            let imageUrls = [];
+            let currentIndex = 0;
+            const displayTime = 5000; // Time to display each image (5 seconds)
+
+            function fetchImages() {
+                $.get('/fetch_images', function(data) {
+                    imageUrls = data.map(filename => `/images/${filename}`);
+                    showImage();
+                });
+            }
+
+            function showImage() {
+                const feed = $('#feed');
+                feed.empty();
+
+                if (imageUrls.length > 0) {
+                    const imgElement = $('<img>').attr('src', imageUrls[currentIndex]);
+                    const slide = $('<div>').addClass('slide').append(imgElement);
+                    feed.append(slide);
+                    setTimeout(() => {
+                        currentIndex = (currentIndex + 1) % imageUrls.length;
+                        feed.empty();
+                        showImage();
+                    }, displayTime);
+                }
+            }
+
+            fetchImages();
+        });
+    </script>
+</body>
+</html>
